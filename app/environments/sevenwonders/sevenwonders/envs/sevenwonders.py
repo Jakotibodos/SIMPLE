@@ -24,6 +24,8 @@ class SevenWondersEnv(gym.Env):
         self.observation_space = gym.spaces.Box(0,1,(386,))
         self.verbose = verbose
         self.log_results = log_results
+        
+        self.alt_reward = True
 
         
 
@@ -96,38 +98,6 @@ class SevenWondersEnv(gym.Env):
 
 
         self.players[0].hand = playernhand
-
-
-    """When end of game state is reached"""
-    def score_game(self):
-        reward = [0.0] * self.n_players
-        for player in self.players:
-            for endgame_function in player.endgame_scoring_functions:
-                endgame_function(player)
-            logger.debug(player.score_string())
-
-        scores = [p.get_total_score() for p in self.players]
-        best_score = max(scores)
-        worst_score = min(scores)
-        winners = []
-        losers = []
-        for i, s in enumerate(scores):
-            if s == best_score:
-                winners.append(i)
-            if s == worst_score:
-                losers.append(i)
-
-        for w in winners:
-            reward[w] += 1.0 / len(winners)
-        
-        for l in losers:
-            reward[l] -= 1.0 / len(losers)
-
-        if self.log_results:
-            self.results_to_file()
-
-        return reward
-    
 
     def step(self, action): 
         """Each step is a player turn (or a part of it if they have 2 actions)
@@ -215,12 +185,8 @@ class SevenWondersEnv(gym.Env):
                         logger.debug(f'\n{player} can play double last card')
                         self.next_player.append((self.current_player_num,3))
                     elif (self.current_player_num,1) not in self.next_player and not player.has_double_last_cards:
-                            try:
-                                self.discard.append(player.hand.pop()) #discard last card
-                            except:
-                                print(player)
-                                print(player.hand)
-                                print(self.turn_type)
+                            self.discard.append(player.hand.pop()) #discard last card
+                            
 
             
             
@@ -251,6 +217,7 @@ class SevenWondersEnv(gym.Env):
                 player.war((self.age*2)-1) #1, 3 and 5
 
             if self.age == 3: #end of game
+                
                 logger.debug(f'\n\n---- GAME OVER ----')
                 reward = self.score_game() 
                 done = True
@@ -267,24 +234,27 @@ class SevenWondersEnv(gym.Env):
         #print("successful turn")
         return self.observation, reward, done, {}
 
-    def results_to_file(self):
+    def results_to_file(self,reward):
         result = dict()
-        
         path = "./results"
         with open(os.path.join(path, self.generate_filename(path,"game_result",".json")), "w") as json_file:
-            for player in self.players:
-                result[player.name] = player.get_player_log() 
+            for i, player in enumerate(self.players):
+                win = 0
+                if reward[i] > 0:
+                    win = 1
+
+                result[player.name] = player.get_player_log(win) 
             json.dump(result, json_file)
 
 
     def generate_filename(self,folder_path, base_name, extension):
         existing_filenames = os.listdir(folder_path)
-        print(existing_filenames)
         filename = base_name + extension
         counter = 1
         while filename in existing_filenames:
             filename = f"{base_name}_{counter}{extension}"
             counter += 1
+        print(filename)
         return filename
 
 
@@ -423,34 +393,40 @@ class SevenWondersEnv(gym.Env):
             #print(f"{player.name}'s hand: {player.hand}")
             i += 1
 
-
-
-
     def score_game(self):
         reward = [0.0] * self.n_players
         
         for player in self.players:
             for endgame_function in player.endgame_scoring_functions:
                 endgame_function(player)
+            logger.debug(player.score_string())
 
         scores = [p.get_total_score() for p in self.players]
-        best_score = max(scores)
-        worst_score = min(scores)
-        winners = []
-        losers = []
-        for i, s in enumerate(scores):
-            if s == best_score:
-                winners.append(i)
-            if s == worst_score:
-                losers.append(i)
-
-
-        for w in winners:
-            #print(w.name,w.get_total_score())
-            reward[w] += 1.0 / len(winners)
         
-        for l in losers:
-            reward[l] -= 1.0 / len(losers)
+        if self.alt_reward:
+            pass
+        else:
+            best_score = max(scores)
+            worst_score = min(scores)
+
+            winners = []
+            losers = []
+            for i, s in enumerate(scores):
+                if s == best_score:
+                    winners.append(i)
+                if s == worst_score:
+                    losers.append(i)
+
+
+            for w in winners:
+                #print(w.name,w.get_total_score())
+                reward[w] += 1.0 / len(winners)
+            
+            for l in losers:
+                reward[l] -= 1.0 / len(losers)
+
+        if self.log_results:
+            self.results_to_file(reward)
 
         return reward
     
