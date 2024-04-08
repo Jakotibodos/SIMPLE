@@ -30,7 +30,7 @@ def main(args):
     logger.set_level(config.INFO)
     
   #make environment
-  env = get_environment(args.env_name)(verbose = args.verbose, manual = args.manual)
+  env = get_environment(args.env_name)(log_results = True, verbose = args.verbose, manual = args.manual)
   env.seed(args.seed)
   set_global_seeds(args.seed)
 
@@ -159,7 +159,7 @@ def cli() -> None:
             , help="Which game to play?")
   parser.add_argument("--write_results", "-w",  action = 'store_true', default = False
             , help="Write results to a file?")
-  parser.add_argument("--seed", "-s",  type = int, default = 17
+  parser.add_argument("--seed", "-s",  type = int, default = 13
             , help="Random seed")
 
   # Extract args

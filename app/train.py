@@ -13,7 +13,7 @@ import time
 from shutil import copyfile
 from mpi4py import MPI
 
-from stable_baselines.ppo1 import PPO1
+from stable_baselines import PPO1
 from stable_baselines.common.callbacks import EvalCallback
 
 from stable_baselines.common.vec_env import DummyVecEnv
@@ -75,13 +75,13 @@ def main(args):
       , 'verbose':1
       , 'tensorboard_log':config.LOGDIR
   }
-
+  print(params)
   time.sleep(5) # allow time for the base model to be saved out when the environment is created
 
   if args.reset or not os.path.exists(os.path.join(model_dir, 'best_model.zip')):
     logger.info('\nLoading the base PPO agent to train...')
     model = PPO1.load(os.path.join(model_dir, 'base.zip'), env, **params)
-  else:
+  else: 
     logger.info('\nLoading the best_model.zip PPO agent to continue training...')
     model = PPO1.load(os.path.join(model_dir, 'best_model.zip'), env, **params)
 
@@ -116,7 +116,7 @@ def main(args):
 
   logger.info('\nSetup complete - commencing learning...\n')
 
-  model.learn(total_timesteps=int(1e9), callback=[eval_callback], reset_num_timesteps = False, tb_log_name="tb")
+  model.learn(total_timesteps=int(1e8), callback=[eval_callback], reset_num_timesteps = False, tb_log_name="tb")
 
   env.close()
   del env
@@ -146,7 +146,7 @@ def cli() -> None:
               , help="Uses best moves when evaluating agent against rules-based agent")
   parser.add_argument("--env_name", "-e", type = str, default = 'tictactoe'
               , help="Which gym environment to train in: tictactoe, connect4, sushigo, butterfly, geschenkt, frouge")
-  parser.add_argument("--seed", "-s",  type = int, default = 17
+  parser.add_argument("--seed", "-s",  type = int, default = 42
             , help="Random seed")
 
   parser.add_argument("--eval_freq", "-ef",  type = int, default = 10240
@@ -161,7 +161,7 @@ def cli() -> None:
             , help="How many timesteps should each actor contribute to the batch?")
   parser.add_argument("--clip_param", "-c",  type = float, default = 0.2
             , help="The clip paramater in PPO")
-  parser.add_argument("--entcoeff", "-ent",  type = float, default = 0.1
+  parser.add_argument("--entcoeff", "-ent",  type = float, default = 0.01
             , help="The entropy coefficient in PPO")
 
   parser.add_argument("--optim_epochs", "-oe",  type = int, default = 4
@@ -171,7 +171,7 @@ def cli() -> None:
   parser.add_argument("--optim_batchsize", "-ob",  type = int, default = 1024
             , help="The minibatch size in the PPO optimiser")
             
-  parser.add_argument("--lam", "-l",  type = float, default = 0.95
+  parser.add_argument("--lam", "-l",  type = float, default = 0.96
             , help="The value of lambda in PPO")
   parser.add_argument("--adam_epsilon", "-a",  type = float, default = 1e-05
             , help="The value of epsilon in the Adam optimiser")

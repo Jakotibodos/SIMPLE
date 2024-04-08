@@ -17,6 +17,7 @@ def selfplay_wrapper(env):
             self.opponent_type = opponent_type
             self.opponent_models = load_all_models(self)
             self.best_model_name = get_best_model_name(self.name)
+            
 
         def setup_opponents(self):
             if self.opponent_type == 'rules':
@@ -80,7 +81,7 @@ def selfplay_wrapper(env):
 
             while self.current_player_num != self.agent_player_num:
                 self.render()
-                action = self.current_agent.choose_action(self, choose_best_action = False, mask_invalid_actions = False)
+                action = self.current_agent.choose_action(self, choose_best_action = False, mask_invalid_actions = True)
                 observation, reward, done, _ = super(SelfPlayEnv, self).step(action)
                 logger.debug(f'Rewards: {reward}')
                 logger.debug(f'Done: {done}')

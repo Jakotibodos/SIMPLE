@@ -45,7 +45,7 @@ class SushiGoEnv(gym.Env):
         self.action_space = gym.spaces.Discrete(self.card_types + self.card_types * self.card_types)
         self.observation_space = gym.spaces.Box(0, 1, (self.total_cards * self.total_positions + self.n_players + self.action_space.n ,))
         self.verbose = verbose
-
+        print("size",self.total_cards * self.total_positions + self.n_players + self.action_space.n )
         
     @property
     def observation(self):
@@ -259,6 +259,8 @@ class SushiGoEnv(gym.Env):
         
         reward = [0] * self.n_players
         done = False
+        print(f"Turn: {self.turns_taken}\n")
+        print(f"{self.current_player_num}'s turn: {action}")
 
         # check move legality
         if self.legal_actions[action] == 0:
