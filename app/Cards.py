@@ -1,6 +1,5 @@
+from common import *
 
-from .Players import Player
-from .common import *
 
 class Card:
     def __init__(self, id, name, color, age, cost, prechains=[], postchains=[]):

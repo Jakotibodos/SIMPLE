@@ -25,7 +25,7 @@ class SevenWondersEnv(gym.Env):
         self.verbose = verbose
         self.log_results = log_results
         
-        self.alt_reward = True
+        self.alt_reward =False
 
         
 
@@ -160,6 +160,13 @@ class SevenWondersEnv(gym.Env):
             else:
                 if action % 2 == 1: #Add card to play queue
                     card = player.hand.pop(action//2)
+                   
+                    """Used only now"""
+                    #Reward function
+                    #if card.color == COLOR_GREEN:
+                       #reward[self.current_player_num] += 0.05
+                
+
                     price = player.get_price(card)
                     logger.debug(f'\n{player} played {card}')
                     logger.debug(f'\ncost = {price}')  
@@ -175,6 +182,12 @@ class SevenWondersEnv(gym.Env):
 
                 else: #discard card (that could be played)
                     card = player.hand.pop(action//2 - 1)
+                    
+                    """Used only now"""
+                    #Reward function
+                    #reward[self.current_player_num] -= 0.1
+                    
+
                     logger.debug(f'\n{player} discarded {card} for 3 coins')
                     player.resources[RESOURCE_GOLD] += 3
                     self.discard.insert(0,card)
@@ -213,6 +226,9 @@ class SevenWondersEnv(gym.Env):
 
         if self.turn > 6: #if end of age
             logger.debug("\nEnd of age, war time")
+            #print("\nEnd of age, war time")
+            #print(self.players)
+            #print(self.age)
             for player in self.players: 
                 player.war((self.age*2)-1) #1, 3 and 5
 
@@ -254,7 +270,7 @@ class SevenWondersEnv(gym.Env):
         while filename in existing_filenames:
             filename = f"{base_name}_{counter}{extension}"
             counter += 1
-        print(filename)
+        #print(filename)
         return filename
 
 
@@ -399,12 +415,18 @@ class SevenWondersEnv(gym.Env):
         for player in self.players:
             for endgame_function in player.endgame_scoring_functions:
                 endgame_function(player)
+            #player.print_score()
             logger.debug(player.score_string())
 
         scores = [p.get_total_score() for p in self.players]
         
         if self.alt_reward:
-            pass
+            best_score = max(scores)
+            for i, s in enumerate(scores):
+                if s == best_score:
+                    reward[i] += min(1,(s*2 / sum(scores)))
+                else:
+                    reward[i] -= min(1,6*(best_score - s)/sum(scores))
         else:
             best_score = max(scores)
             worst_score = min(scores)
@@ -427,7 +449,8 @@ class SevenWondersEnv(gym.Env):
 
         if self.log_results:
             self.results_to_file(reward)
-
+        
+        #print(reward)
         return reward
     
     def deck_setup_age_3(self,player_count):

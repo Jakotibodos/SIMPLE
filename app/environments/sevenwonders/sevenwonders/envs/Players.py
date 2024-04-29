@@ -227,8 +227,6 @@ class Player:
 			#print(f"{self.name} wins against {self.west_player.name}")
 			self.points[POINTS_RED] += points_given
 		
-			
-			#print(f"{self.name} ties against {self.west_player.name}")
 
 
 
@@ -241,7 +239,7 @@ class Player:
 			self.points[POINTS_RED] += points_given
 		
 			
-			#print(f"{self.name} ties against {self.east_player.name}")
+			
 	def print_available_cards(self, hand_cost):
 		hand = self.hand.copy()
 		for i in range(len(hand)):

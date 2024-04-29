@@ -118,3 +118,5 @@ venv.bak/
 # PyCharm / IDEA
 .idea/
 
+# Folders
+app/results/
