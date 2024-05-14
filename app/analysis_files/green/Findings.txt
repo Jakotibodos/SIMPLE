@@ -1,0 +1,11 @@
+Most useful brown: Timber Yard
+Least Useful: Foundry
+All double resources are quite useless, except the quarry but the model doesn't know why
+grey resources bring average win rates, Loom is least popular
+
+Small blues useless, especially Theatre
+
+Craftmens guild not used at all
+
+Theatre-Statue-Gardens is the worst combo
+

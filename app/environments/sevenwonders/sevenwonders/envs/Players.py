@@ -442,6 +442,7 @@ class Player:
 			   "color_count":self.color_count,
 			   "points":self.points,
 			   "wonder":self.wonder.id,
+			   "stages_played":self.wonder.stages_completed
 			   }
 		return log 
 
@@ -714,7 +715,7 @@ class Player:
 					if cost["east"] > cost['west']:
 						cost["west"] += trade_price
 					elif cost["east"] < cost['west']:
-						cost["west"] += trade_price
+						cost["east"] += trade_price
 					else:
 						cost[choice(["east","west"])] += trade_price
 

@@ -265,12 +265,7 @@ class SevenWondersEnv(gym.Env):
 
     def generate_filename(self,folder_path, base_name, extension):
         existing_filenames = os.listdir(folder_path)
-        filename = base_name + extension
-        counter = 1
-        while filename in existing_filenames:
-            filename = f"{base_name}_{counter}{extension}"
-            counter += 1
-        #print(filename)
+        filename = base_name+"_"+str(len(existing_filenames)) + extension
         return filename
 
 
